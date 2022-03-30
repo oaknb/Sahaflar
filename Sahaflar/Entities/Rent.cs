@@ -13,6 +13,6 @@ namespace Sahaflar.Entities
         public User User { get; set; }
         public int UserId { get; set; }
         public Books Books { get; set; }
-        public int BookId { get; set; }
+        public int BooksId { get; set; }
     }
 }

@@ -13,6 +13,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Sahaflar.Entities;
+using Sahaflar.Repositories.Abstract;
+using Sahaflar.Repositories.Concrete;
+
 namespace Sahaflar
 {
     public class Startup
@@ -30,6 +33,10 @@ namespace Sahaflar
 
             services.AddControllers();
             services.AddDbContext<Sahafs>(options => options.UseSqlServer(Configuration.GetConnectionString("connectionString")));
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IBookSellerRepository, BookSellerRepository>();
+            services.AddScoped<IBookRepository, BookRepository>();
+            services.AddScoped<IRentRepository, RentRepository>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Sahaflar", Version = "v1" });

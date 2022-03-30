@@ -10,7 +10,7 @@ using Sahaflar.Entities;
 namespace Sahaflar.Migrations
 {
     [DbContext(typeof(Sahafs))]
-    [Migration("20220328174533_Initial")]
+    [Migration("20220330141532_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -63,10 +63,7 @@ namespace Sahaflar.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("BookId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("BooksId")
+                    b.Property<int>("BooksId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("EndTime")
@@ -119,8 +116,10 @@ namespace Sahaflar.Migrations
             modelBuilder.Entity("Sahaflar.Entities.Rent", b =>
                 {
                     b.HasOne("Sahaflar.Entities.Books", "Books")
-                        .WithMany()
-                        .HasForeignKey("BooksId");
+                        .WithMany("Rents")
+                        .HasForeignKey("BooksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Sahaflar.Entities.User", "User")
                         .WithMany("Rents")
@@ -136,6 +135,11 @@ namespace Sahaflar.Migrations
             modelBuilder.Entity("Sahaflar.Entities.BookSeller", b =>
                 {
                     b.Navigation("Books");
+                });
+
+            modelBuilder.Entity("Sahaflar.Entities.Books", b =>
+                {
+                    b.Navigation("Rents");
                 });
 
             modelBuilder.Entity("Sahaflar.Entities.User", b =>

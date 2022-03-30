@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Sahaflar.Entities;
+using Sahaflar.Models;
+using Sahaflar.Repositories.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,78 +14,59 @@ namespace Sahaflar.Controllers
     [ApiController]
     public class BookSellerController : ControllerBase
     {
-        Sahafs _context;
-        public BookSellerController(Sahafs context)
+        private readonly IBookSellerRepository bookSellerRepository;
+        public BookSellerController(IBookSellerRepository bookSellerRepository)
         {
-            _context = context;
+            this.bookSellerRepository = bookSellerRepository;
         }
 
         [HttpPost]
         [Route("AddBookSeller")]
         public IActionResult AddBookSeller(BookSeller seller)
         {
-            _context.BookSellers.Add(seller);
-            _context.SaveChanges();
-
-            return Ok(seller);
-        }
-
-        [HttpPost]
-        [Route("AddBook")]
-        public IActionResult AddBook(Books book)
-        {
-            _context.Books.Add(book);
-            _context.SaveChanges();
-
-            return Ok(book);
-        }
-        [HttpPost]
-        [Route("AddUser")]
-        public IActionResult AddUser(User user)
-        {
-            _context.Users.Add(user);
-            _context.SaveChanges();
-
-            return Ok(user);
-        }
-
-        [HttpPost]
-        [Route("RentABook")]
-        public IActionResult RentABook(Rent rent)
-        {
-            Rent rents = _context.Rents.Where(a=>a.BookId==rent.BookId).OrderBy(a=>a.EndTime).FirstOrDefault();
-            if(rents==null)
+            bool result = bookSellerRepository.AddBookSeller(seller);
+            if (result)
             {
-                _context.Rents.Add(rent);
-                _context.SaveChanges();
-
-                return Ok(rent);
+                return Ok(new ResultModel { State = "Succeed", Message = "BookSeller created successfully" });
             }
-            else
-            {
-                if (rents.EndTime < DateTime.Now)
-                {
-                    _context.Rents.Add(rent);
-                    _context.SaveChanges();
 
-                    return Ok(rent);
-                }
-                return BadRequest("Kitap Halen Kiralık");
-            }
-            
+            return BadRequest(new ResultModel { State = "Warning", Message = "BookSeller could not create" });
         }
 
         [HttpGet]
-        [Route("GetRentDetail")]
-        public IActionResult GetRentDetail(string date)
+        [Route("GetBookSellers")]
+        public IActionResult GetBookSellers()
         {
-            DateTime timeGap = Convert.ToDateTime(date);
-            List<Rent> rents = _context.Rents.Where(a=>a.StartTime==timeGap).ToList();
-           
+            List<BookSeller> bookSellers = bookSellerRepository.GetBookSellers();
+            if (bookSellers != null)
+            {
+                return Ok(bookSellers);
+            }
 
+            return BadRequest(new ResultModel { State = "Error", Message = "Any bookSeller cannot be found" });
 
-            return Ok(rents.Count());
         }
+
+        [HttpGet]
+        [Route("GetBookSellerById")]
+        public IActionResult GetBookSellerById(int id)
+        {
+            BookSeller bookSeller = bookSellerRepository.GetBookSellerById(id);
+            if (bookSeller != null)
+            {
+                return Ok(bookSeller);
+            }
+
+            return BadRequest(new ResultModel { State = "Error", Message = "BookSeller cannot be found" });
+
+        }
+
+
+
+
+
+
+
 
     }
 }
